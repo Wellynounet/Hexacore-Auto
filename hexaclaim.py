@@ -195,7 +195,7 @@ def main():
                 if token:
                     common_headers["Authorization"] = f"Bearer {token}"
                     if is_feature_enabled("buy_tap"):
-                        buy_tap_payload = {"name": "1_day"}
+                        buy_tap_payload = {"name": "7_days"}
                         buy_tap_result = request_with_auth(buy_tap_url, 'POST', headers=common_headers, json=buy_tap_payload)
                         print_results(username, buy_tap_result=buy_tap_result)
                     else:
