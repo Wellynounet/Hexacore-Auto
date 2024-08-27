@@ -4,7 +4,7 @@ import time
 import urllib.parse
 import json
 
-# Function to read data from file data.txt and extract user_id
+# Fungsi untuk membaca data dari file data.txt dan extract user_id
 def load_user_data(filename):
     with open(filename, "r") as file:
         data = file.readlines()
@@ -23,14 +23,14 @@ def load_user_data(filename):
     
     return user_data
 
-# URL and Header
-login_url = "https://ago-api.hexacore.io/api/app-auth"  # Make sure this is defined here
+# URL dan Header
+login_url = "https://ago-api.hexacore.io/api/app-auth"  # Pastikan ini didefinisikan di sini
 user_exists_url = "https://ago-api.hexacore.io/api/user-exists"
 balance_url_template = "https://ago-api.hexacore.io/api/balance/{}"
-daily_checkin_url = "https://ago-api.hexacore.io/api/daily-checkin"
-available_taps_url = "https://ago-api.hexacore.io/api/available-taps"
+cekin_url = "https://ago-api.hexacore.io/api/daily-checkin"
+cek_taps_url = "https://ago-api.hexacore.io/api/available-taps"
 buy_taps_url = "https://ago-api.hexacore.io/api/buy-tap-passes"
-mining_complete_url = "https://ago-api.hexacore.io/api/mining-complete"
+klik_url = "https://ago-api.hexacore.io/api/mining-complete"
 
 headers = {
     "Content-Type": "application/json",
@@ -45,10 +45,10 @@ headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 Edg/126.0.0.0"
 }
 
-# Function to login and get token from data.txt
+# Fungsi untuk login dan mendapatkan token dari data.txt
 def login_from_data(data_line):
     payload = {"data": data_line}
-    print(f"Fetching Data For Login")
+    print(f"@mitomchanel")
     response = requests.post(login_url, json=payload, headers=headers)
     try:
         response_data = response.json()
@@ -62,20 +62,20 @@ def login_from_data(data_line):
                 print(f"Decoded user_info: ........")  # Debug print
                 user_info_dict = json.loads(user_info_decoded)  # Safely parse JSON-like string
                 user_id = user_info_dict.get("id")
-                print(f"Token successfully obtained: ........")
+                print(f"Token: ........")
                 return token, user_id
     except requests.exceptions.JSONDecodeError:
-        print("Failed to decode JSON response. Response content:")
+        print("Gagal mendekode respons JSON. Konten respons:")
         print(response.text)
     return None, None
 
-# Function to check if user exists
+# Fungsi untuk memeriksa apakah user sudah ada
 def check_user_exists(token):
     headers['Authorization'] = token
     response = requests.get(user_exists_url, headers=headers)
     return response.json().get("exists")
 
-# Function to get balance
+# Fungsi untuk mendapatkan balance
 def get_balance(user_id, token):
     balance_url = balance_url_template.format(user_id)
     headers['Authorization'] = token
@@ -95,20 +95,20 @@ def get_balance(user_id, token):
         print(response.text)
         return None, None
 
-# Function for daily check-in
+# Fungsi untuk daily check-in
 def daily_checkin(token):
     headers['Authorization'] = token
-    checkin_payload = {"day": random.randint(1, 20)}
-    response = requests.post(daily_checkin_url, json=checkin_payload, headers=headers)
+    cekin_payload = {"day": random.randint(1, 20)}
+    response = requests.post(cekin_url, json=cekin_payload, headers=headers)
     return response.json().get("available_at"), response.json().get("success")
 
-# Function to check available taps
+# Fungsi untuk cek taps yang tersedia
 def check_available_taps(token):
     headers['Authorization'] = token
-    response = requests.get(available_taps_url, headers=headers)
+    response = requests.get(cek_taps_url, headers=headers)
     return response.json().get("available_taps")
 
-# Function to buy taps
+# Fungsi untuk membeli taps
 def buy_taps(token):
     headers['Authorization'] = token
     buy_taps_options = ["1_days", "3_days", "7_days"]
@@ -120,31 +120,31 @@ def buy_taps(token):
         response_data = response.json()
         return response_data.get("success")
     except requests.exceptions.JSONDecodeError:
-        print("Failed to decode JSON response. Response content:")
+        print("Gagal mendekode respons JSON. Konten respons:")
         print(response.text)
         return None
 
-# Function to complete mining
+# Fungsi untuk melakukan klik mining
 def mining_complete(token):
     headers['Authorization'] = token
-    mining_payload = {"taps": random.randint(743, 1541)}
-    response = requests.post(mining_complete_url, json=mining_payload, headers=headers)
-    print(f"Mining Payload: {mining_payload}")
+    klik_payload = {"taps": random.randint(247, 3850)}
+    response = requests.post(klik_url, json=klik_payload, headers=headers)
+    print(f"Đã Tap: {klik_payload}")
     return response.json().get("success")
 
-# Main function to execute the entire process sequentially for each user
+# Fungsi utama untuk menjalankan seluruh alur proses secara bergantian untuk setiap user
 def main():
     data_file = "data.txt"
     user_data_list = load_user_data(data_file)
     
     while True:
         for user_id, username, data_line in user_data_list:
-            print(f"\nProcessing user: {username} (ID: {user_id})")
+            print(f"\nTài Khoản: {username} (ID: {user_id})")
             token, user_id = login_from_data(data_line)
             if token:
-                print(f"Token: Successfully Obtained")
+                print(f"Token: Login thành công")
 
-                # Check if user exists
+                # Check user exists
                 exists = check_user_exists(token)
                 print(f"User Exists: {exists}")
 
@@ -169,8 +169,8 @@ def main():
                 print(f"Mining Complete: Success={success}")
 
                 # Countdown before next user iteration
-                delay = random.randint(5, 10)
-                print(f"Waiting for {delay} seconds before processing the next user...")
+                delay = random.randint(6, 11)
+                print(f"Waiting for {delay} seconds before processing next user...")
                 for i in range(delay, 0, -1):
                     print(f"{i} seconds remaining...", end="\r")
                     time.sleep(1)
