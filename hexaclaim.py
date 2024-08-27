@@ -9,7 +9,16 @@ upgrade_level_url = "https://hexacore-tg-api.onrender.com/api/upgrade-level"
 check_level_url = "https://hexacore-tg-api.onrender.com/api/level"
 buy_tap_url = "https://hexacore-tg-api.onrender.com/api/buy-tap-passes"
 
-# Common headers for requests
+# Status check endpoints (assuming these exist)
+status_check_url = {
+    "missions": "https://hexacore-tg-api.onrender.com/api/status/mission",
+    "upgrade_level": "https://hexacore-tg-api.onrender.com/api/status/upgrade-level",
+    "check_level": "https://hexacore-tg-api.onrender.com/api/status/check-level",
+    "passive_income": "https://hexacore-tg-api.onrender.com/api/status/passive-income",
+    "buy_tap": "https://hexacore-tg-api.onrender.com/api/status/buy-tap"
+}
+
+# Header umum untuk request
 common_headers = {
     "Accept": "*/*",
     "Accept-Encoding": "gzip, deflate, br, zstd",
@@ -20,7 +29,7 @@ common_headers = {
     "Referer": "https://ago-wallet.hexacore.io/"
 }
 
-# Authentication headers
+# Header khusus untuk otentikasi
 auth_headers = {
     "Accept-Encoding": "gzip, deflate, br",
     "Accept-Language": "en-US,en;q=0.9",
@@ -35,6 +44,16 @@ auth_headers = {
     "Sec-Fetch-Site": "cross-site",
     "User-Agent": "Mozilla/5.0 (Linux; Android 10; SM-G973F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
 }
+
+# Function to check if a feature is enabled
+def is_feature_enabled(feature):
+    response = requests.get(status_check_url[feature], headers=common_headers)
+    if response.status_code == 200:
+        status = response.json()
+        return status.get("enabled", False)
+    else:
+        print(f"Failed to check status for {feature}: {response.text}")
+        return False
 
 # Function to read user data from file
 def read_user_data(filename):
@@ -85,38 +104,46 @@ referral_links = [
     "https://discord.com/invite/2Z8XurKufH"
 ]
 
-# Main loop to handle user operations
-while True:
-    print("=========HEXA BOT=============")
-    print("Options:")
-    print("1. Claim mission")
-    print("2. Upgrade level")
-    print("3. Check level")
-    print("4. Check passive income")
-    print("5. Buy Tap 1 Day")
+# Display options to the user
+print("=========HEXA BOT=============")
+print("Options:")
+print("1. Claim mission")
+print("2. Upgrade level")
+print("3. Check level")
+print("4. Check passive income")
+print("5. Buy Tap 1 Day")
 
-    choice = input("Enter your choice (or 'exit' to quit): ")
+# Read user choice
+choice = input("Enter your choice: ")
 
-    if choice.lower() == 'exit':
-        break
-
-    for user_id, username in user_data:
-        auth_payload = {
-            "user_id": user_id,
-            "username": username
-        }
+# Process each user
+for user_id, username in user_data:
+    auth_payload = {
+        "user_id": user_id,
+        "username": username
+    }
+    
+    response = requests.post(auth_url, headers=auth_headers, json=auth_payload)
+    
+    if response.status_code == 200:
+        auth_response = response.json()
+        token = auth_response.get("token", "")
         
-        response = requests.post(auth_url, headers=auth_headers, json=auth_payload)
-        
-        if response.status_code == 200:
-            auth_response = response.json()
-            token = auth_response.get("token", "")
+        if token:
+            common_headers["Authorization"] = f"Bearer {token}"
             
-            if token:
-                common_headers["Authorization"] = f"Bearer {token}"
-                
-                print("-" * 80)  # Separator
-                
+            print("-" * 80)  # Separator
+            
+            # Check if the chosen feature is enabled
+            feature_status = {
+                "1": "missions",
+                "2": "upgrade_level",
+                "3": "check_level",
+                "4": "passive_income",
+                "5": "buy_tap"
+            }.get(choice)
+
+            if feature_status and is_feature_enabled(feature_status):
                 if choice == "1":
                     mission_results = {}
                     # Simulate visiting referral links
@@ -171,7 +198,9 @@ while True:
                     print("Invalid choice.")
                     break
             else:
-                print(f"Failed to get token for user_id={user_id}, username={username}")
+                print(f"Feature not enabled or invalid choice: {feature_status}")
         else:
-            print(f"Auth failed for user_id={user_id}, username={username}: {response.text}")
-        print("-" * 80)
+            print(f"Failed to get token for user_id={user_id}, username={username}")
+    else:
+        print(f"Auth failed for user_id={user_id}, username={username}: {response.text}")
+    print("-" * 80)
