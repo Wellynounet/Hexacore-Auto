@@ -127,7 +127,7 @@ def buy_taps(token):
 # Function to complete mining
 def mining_complete(token):
     headers['Authorization'] = token
-    mining_payload = {"taps": random.randint(253, 1541)}
+    mining_payload = {"taps": random.randint(743, 1541)}
     response = requests.post(mining_complete_url, json=mining_payload, headers=headers)
     print(f"Mining Payload: {mining_payload}")
     return response.json().get("success")
